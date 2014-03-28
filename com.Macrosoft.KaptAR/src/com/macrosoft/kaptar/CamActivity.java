@@ -1,13 +1,10 @@
 package com.macrosoft.kaptar;
 
-import java.io.IOException;
-
 import android.hardware.SensorManager;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.wikitude.architect.ArchitectView.ArchitectConfig;
 import com.wikitude.architect.ArchitectView.ArchitectUrlListener;
 import com.wikitude.architect.ArchitectView.SensorAccuracyChangeListener;
 
