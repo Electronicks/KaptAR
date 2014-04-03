@@ -1,5 +1,6 @@
 package com.macrosoft.kaptar;
 
+import android.content.Intent;
 import android.hardware.SensorManager;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ public class CamActivity extends AbstractArchitectCamActivity
 	{
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		
 	}
 
 	@Override
