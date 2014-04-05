@@ -1,22 +1,25 @@
 package com.macrosoft.kaptar;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.Context;
 import android.util.Log;
 import android.util.Xml;
 
 public class ModelParser
 {
+	private Context c = null;
+	private int id = 0;
+	private String tracker = null;
 
-	public ModelParser()
+	public ModelParser(Context c)
 	{
-		// TODO Auto-generated constructor stub
+		this.c = c;
 	}
 
 	private static final String	ns	= null;
@@ -49,9 +52,9 @@ public class ModelParser
 			}
 			String name = parser.getName();
 			// Starts by looking for the entry tag
-			if( name.equals( "productId" ) )
+			if( name.equals( "product" ) )
 			{
-				readProductID( parser );
+				readProduct( parser );
 			}
 			else
 			{
@@ -61,38 +64,41 @@ public class ModelParser
 		parser.require( XmlPullParser.END_TAG, ns, "version" );
 		return;
 	}
-
 	
-	private void readImage( XmlPullParser parser ) throws XmlPullParserException, IOException
+	// Processes link tags in the feed.
+	private void readProduct( XmlPullParser parser ) throws IOException, XmlPullParserException
 	{
-		String url = null;
-		parser.require( XmlPullParser.START_TAG, ns, "image" );
+		parser.require( XmlPullParser.START_TAG, ns, "product" );
 		String tag = parser.getName();
-		if( tag.equals( "image" ) )
+		if( tag.equals( "product" ) )
 		{
-				url = parser.getAttributeValue( null, "url" );
+			String attribute = parser.getAttributeValue( null, "id" );
+			id = attribute != null ? Integer.parseInt( attribute ) : -1;
+			attribute = parser.getAttributeValue( null, "name" );
+			tracker = attribute != null ? attribute : "unnamed";
 		}
-		parser.next();
-		parser.require( XmlPullParser.END_TAG, ns, "image" );
-		Log.d( "readImage", "url=" + url );
+		Log.d( "readProduct", "ID="+id + " & name=" + tracker );
+		
+		while( parser.next() != XmlPullParser.END_TAG )
+		{
+			if( parser.getEventType() != XmlPullParser.START_TAG )
+			{
+				continue;
+			}
+			String name = parser.getName();
+			if( name.equals( "media" ) )
+			{
+				readMedia( parser );
+			}
+			else
+			{
+				skip( parser );
+			}
+		}
+		parser.require( XmlPullParser.END_TAG, ns, "product" );
 		return;
 	}
 	
-	private void readLink( XmlPullParser parser ) throws XmlPullParserException, IOException
-	{
-		String url = null;
-		parser.require( XmlPullParser.START_TAG, ns, "link" );
-		String tag = parser.getName();
-		if( tag.equals( "link" ) )
-		{
-				url = parser.getAttributeValue( null, "url" );
-		}
-		parser.next();
-		parser.require( XmlPullParser.END_TAG, ns, "link" );
-		Log.d( "readImage", "url=" + url );
-		return;
-	}
-
 	// Processes title tags in the feed.
 	private void readMedia( XmlPullParser parser ) throws IOException, XmlPullParserException
 	{
@@ -104,10 +110,17 @@ public class ModelParser
 		String tag = parser.getName();
 		if( tag.equals( "media" ) )
 		{
-				id = Integer.parseInt( parser.getAttributeValue( null, "id" ) );
-				type = parser.getAttributeValue( null, "type" );
-				posX = Float.parseFloat( parser.getAttributeValue( null, "relXpos" ) );
-				posY = Float.parseFloat( parser.getAttributeValue( null, "relYpos" ) );
+			String attribute = parser.getAttributeValue( null, "id" );
+			id = attribute != null ? Integer.parseInt( attribute ) : -1;
+			
+			attribute = parser.getAttributeValue( null, "type" ); 
+			type = attribute != null ? attribute : "";
+			
+			attribute = parser.getAttributeValue( null, "relXpos" );
+			posX = attribute != null ? Float.parseFloat( attribute ) : 0;
+			
+			attribute = parser.getAttributeValue( null, "relYpos" );
+			posY = attribute != null ? Float.parseFloat( attribute ) : 0;
 		}
 		Log.d( "readMedia", "ID=" + id + " & pos=(" + posX + "," + posY + ") & type=" + type );
 		
@@ -138,36 +151,49 @@ public class ModelParser
 		parser.require( XmlPullParser.END_TAG, ns, "media" );
 		return;
 	}
-
-	// Processes link tags in the feed.
-	private void readProductID( XmlPullParser parser ) throws IOException, XmlPullParserException
+	
+	private void readImage( XmlPullParser parser ) throws XmlPullParserException, IOException
 	{
-		int id = 0;
-		parser.require( XmlPullParser.START_TAG, ns, "productId" );
+		String url = null;
+		int size = Integer.MAX_VALUE;
+		parser.require( XmlPullParser.START_TAG, ns, "image" );
 		String tag = parser.getName();
-		if( tag.equals( "productId" ) )
+		if( tag.equals( "image" ) )
 		{
-				id = Integer.parseInt( parser.getAttributeValue( null, "value" ) );
+			String attribute = parser.getAttributeValue( null, "url" ); 
+			url = attribute != null ? attribute : "";
+			
+			attribute = parser.getAttributeValue( null, "filesize" );
+			size = attribute != null ? Integer.parseInt( attribute ) : Integer.MAX_VALUE;
 		}
-		Log.d( "readProductID", "ID="+id );
+		parser.next();
+		parser.require( XmlPullParser.END_TAG, ns, "image" );
+		Log.d( "readImage", "url=" + url );
+		String filename = Home.KaptarWorldPath + "augmentation/" + tracker + "/" + url.substring( url.lastIndexOf( "/" )+1, url.length() );
+		File file = new File(filename);
+		if(file.exists() == false)
+		{
+			file.getParentFile().mkdirs();
+			DownloadWorker dw = new DownloadWorker( c, size, file);
+			dw.execute( NetworkWorker.Server + ":" + NetworkWorker.serverport + url.substring( 2 ) );
+		}
 		
-		while( parser.next() != XmlPullParser.END_TAG )
+		return;
+	}
+	
+	private void readLink( XmlPullParser parser ) throws XmlPullParserException, IOException
+	{
+		String url = null;
+		parser.require( XmlPullParser.START_TAG, ns, "link" );
+		String tag = parser.getName();
+		if( tag.equals( "link" ) )
 		{
-			if( parser.getEventType() != XmlPullParser.START_TAG )
-			{
-				continue;
-			}
-			String name = parser.getName();
-			if( name.equals( "media" ) )
-			{
-				readMedia( parser );
-			}
-			else
-			{
-				skip( parser );
-			}
+			String attribute = parser.getAttributeValue( null, "url" ); 
+			url = attribute != null ? attribute : "";
 		}
-		parser.require( XmlPullParser.END_TAG, ns, "productId" );
+		parser.next();
+		parser.require( XmlPullParser.END_TAG, ns, "link" );
+		Log.d( "readImage", "url=" + url );
 		return;
 	}
 
@@ -179,7 +205,8 @@ public class ModelParser
 		String tag = parser.getName();
 		if( tag.equals( "text" ) )
 		{
-				url = parser.getAttributeValue( null, "url" );
+			String attribute = parser.getAttributeValue( null, "url" ); 
+			url = attribute != null ? attribute : "";
 		}
 		parser.next();
 		parser.require( XmlPullParser.END_TAG, ns, "text" );

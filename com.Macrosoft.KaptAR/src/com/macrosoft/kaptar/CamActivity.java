@@ -45,17 +45,6 @@ public class CamActivity extends AbstractArchitectCamActivity
 	{
 		// TODO Auto-generated method stub
 		super.onPostCreate( savedInstanceState );
-
-		/*this.architectView.onPostCreate();
-		try
-		{
-			this.architectView.load( getIntent().getExtras().getString( Home.EXTRAS_KEY_ACTIVITY_ARCHITECT_WORLD_URL ) );
-		}
-		catch( IOException e )
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 	}
 
 	@Override

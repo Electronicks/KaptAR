@@ -22,35 +22,34 @@ var World =
 		// to change the target name accordingly.
         // e.g. replace "pageOne" used for creating the AR.Trackeable2DOBject
 		// below, with the name of one of your new target images.
-        this.tracker = new AR.Tracker("wtc/Kaptar0.4.wtc");
+        this.tracker = new AR.Tracker("wtc/KaptarTargets.wtc");
 
         // Create overlay for page one
-        var img1 = new AR.ImageResource("augmentation/PrinceOfPersia/a_wilson.jpg");
-        var overlayOne = new AR.ImageDrawable(img1, 1, {
+        var wilson = new AR.ImageResource("augmentation/PrinceOfPersia/a_wilson.jpg");
+        var overlayOne = new AR.ImageDrawable(wilson, 1, {
             offsetX: 0.05596673976608186,
             offsetY: 0.35694291483113076,
             scale: 0.5
         });
-        var trailer = new AR.VideoDrawable("augmentation/PrinceOfPersia/PoP_Story_Trailer.mp4", 1, {
-			offsetY: -0.5
-		});
 
-        var pageOne = new AR.Trackable2DObject(this.tracker, "PrinceofPersia", {
+        var pop = new AR.Trackable2DObject(this.tracker, "PrinceofPersia", {
             drawables: {
-                cam: [overlayOne, trailer]
+                cam: [overlayOne]
             },
-            onEnterFieldOfVision: function onEnterFieldOfViewFn () {
-            	trailer.play(-1);
-            }
+        });
+        
+        var cdp = new AR.Trackable2DObject(this.tracker, "cdp-meilleursrecettes", {
+            drawables: {
+                cam: [overlayOne]
+            },
+        });
+        
+        var cjr = new AR.Trackable2DObject(this.tracker, "CerealesJustRight", {
+            drawables: {
+                cam: [overlayOne]
+            },
         });
 
-        /*
-		 * Create overlay for page two var imgTwo = new
-		 * AR.ImageResource("assets/imageTwo.png"); var overlayTwo = new
-		 * AR.ImageDrawable(imgTwo, 0.5, { offsetX: 0.12, offsetY: -0.01 }); var
-		 * pageTwo = new AR.Trackable2DObject(this.tracker, "pageTwo", {
-		 * drawables: { cam: overlayTwo } });
-		 */
     },
 
 };

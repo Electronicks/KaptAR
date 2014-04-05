@@ -1,6 +1,7 @@
 package com.macrosoft.kaptar;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
@@ -21,12 +22,15 @@ import android.widget.Toast;
 
 public class NetworkWorker extends AsyncTask< Void, Void, Void >
 {
-	Context c = null;
-	String str = null;
-	String Server = "http://olivierdiotte.servebeer.com:83/kaptar";
-	int version = 1;
-	String username = "phones";
-	String password = "Macrosoft";
+	private Context c = null;
+	private String str = null;
+	
+	//à mettre dans shared prefs
+	public static final String Server = "http://olivierdiotte.servebeer.com";
+	public static final int serverport = 83;
+	public static final int version = 2;
+	public static final String username = "phones";
+	public static final String password = "Macrosoft";
 	
 
 	public NetworkWorker(Context context)
@@ -50,8 +54,8 @@ public class NetworkWorker extends AsyncTask< Void, Void, Void >
 		{
 			for(int modelid = 1 ; modelid <= 4 ; modelid++)
 			{
-				//HttpUriRequest request = new HttpGet("http://olivierdiotte.servebeer.com:83/kaptar?modelId=1&ver=1");
-				HttpUriRequest request = new HttpGet(Server + "?ver=" + version + "&modelId=" + modelid);
+				HttpUriRequest request = new HttpGet(
+						Server + ":" + serverport + "/kaptar?ver=" + version + "&modelId=" + modelid);
 				String credentials = username + ":" + password;  
 				String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);  
 				request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
@@ -60,7 +64,7 @@ public class NetworkWorker extends AsyncTask< Void, Void, Void >
 				HttpEntity entity = httpclient.execute(request).getEntity();  
 				str = EntityUtils.toString(entity, "UTF-8");
 				//Log.d( "httpresponse", str );
-				ModelParser parser = new ModelParser();
+				ModelParser parser = new ModelParser(c);
 				InputStream is = new ByteArrayInputStream(str.getBytes());
 				parser.parse(is);
 			}
@@ -106,7 +110,21 @@ public class NetworkWorker extends AsyncTask< Void, Void, Void >
 	{
 		// TODO Auto-generated method stub
 		super.onPostExecute( result );
-		Toast.makeText( c, "Successfully finished", Toast.LENGTH_SHORT ).show();
+		
+		try
+		{
+			File f = new File(c.getExternalFilesDir( null ).getCanonicalPath() + "/KaptarWorld/augmentation/" + "TrakerName" + "/CowInBoots.gif");
+			if(f.exists())
+				Toast.makeText( c, "downloaded finished", Toast.LENGTH_SHORT ).show();
+			else
+				Toast.makeText( c, "not downloaded finished", Toast.LENGTH_SHORT ).show();
+		}
+		catch( IOException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }
