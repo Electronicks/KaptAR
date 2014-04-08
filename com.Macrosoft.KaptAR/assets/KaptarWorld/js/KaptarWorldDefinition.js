@@ -8,32 +8,24 @@ var World =
 
 		this.tracker = new AR.Tracker("wtc/KaptarTargets.wtc");
 
-		var image159387 = new AR.ImageResource("augmentation/ubisoft-mtl.jpeg");
-		var ubisoft_mtl = new AR.ImageDrawable(image159387, 1, {
+		var image159387 = new AR.ImageResource("augmentation/PrinceOfPersia/a_wilson.jpg");
+		var a_wilson = new AR.ImageDrawable(image159387, 1, {
 			offsetX: -0.7,
-			offsetY: 0.35694291483113076,
-			scale: 0.5
+			offsetY: 0.35694292
 		});
 
-		var Gameplay_Trailer = new AR.VideoDrawable("augmentation/Gameplay_Trailer.mp4", 1, {
-			offsetX: 0,
-			offsetY: -0.4,
-			scale: 0.8,
-			onClick: function Gameplay_TrailerOnClickFn () {
-				Gameplay_Trailer.play(-1);
-			}
+		var hasAnyoneEver = new AR.Label("9.99 $", 0.3, {
+			scale: 1,
+			offsetX: 0.0,
+			offsetY:  -1.0,
+			style: {textColor: "#000000",
+				backgroundColor: "#FFFFFF"}
 		});
 
 		var PrinceofPersia = new AR.Trackable2DObject(this.tracker, "PrinceofPersia", {
 			drawables: {
-				cam: [ubisoft_mtl, Gameplay_Trailer]
+				cam: [a_wilson, hasAnyoneEver]
 			},
-			onEnterFieldOfVision: function onEnterFieldOfViewFn () {
-					Gameplay_Trailer.resume();
-			},
-			onExitFieldOfVision: function onExitFieldOfViewFn () {
-				Gameplay_Trailer.pause();
-			}
 		});
 
 	}

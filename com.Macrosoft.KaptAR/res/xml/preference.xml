@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:title="Paramètres"
+        android:key="Paramètres">
+        
+
+         <EditTextPreference
+            android:key="URL AR"
+            android:title="URL du monde de réalité augmenté" 
+            android:summary="Définition du URL"
+            android:dialogTitle="Adresse du serveur"
+            android:dialogMessage="Définir un lien URL"    
+            android:defaultValue="http://olivierdiotte.servebeer.com:83/KaptarWorld/"
+        />
+        
+         
+          <EditTextPreference
+            android:key="Nom d'utilisateur"
+            android:title="Nom d'utilisateur" 
+            android:summary="Définition du nom d'usager"
+            android:dialogTitle="Nom d'usager"
+            android:dialogMessage="Veuillez entrer votre nom d'usager"    
+            android:defaultValue="phones"
+        />
+          
+          
+         <EditTextPreference
+            android:key="Mot de passe"
+            android:title="Mot de passe" 
+            android:summary="Définition du mot de passe"
+            android:dialogTitle="Mot de passe"
+            android:dialogMessage="Veuillez entrer votre mot de passe"    
+            android:defaultValue="Macrosoft"
+            android:inputType="textPassword"
+        />
+          
+         
+         <EditTextPreference
+            android:key="Port de communication"
+            android:title="Port de communication" 
+            android:summary="Définition du port de communication"
+            android:dialogTitle="Port de communication"
+            android:dialogMessage="Veuillez entrer le port de communication"  
+            android:defaultValue="83"
+            android:inputType="number"
+		 />
+         
+         
+         <ListPreference 
+            android:key="Bouton partage"
+            android:title="Bouton partage d'écran"
+            android:summary="Définition du bouton de partage"
+            android:defaultValue="1000" 
+            android:entries="@array/updateInterval"
+            android:entryValues="@array/updateIntervalValues"
+        />    
+        
+         <CheckBoxPreference 
+            android:key="Partage d'image"
+            android:title="Partage d'écran"
+            android:summary="Autorisation du partage d'écran"
+            android:defaultValue="true"
+         />
+              
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

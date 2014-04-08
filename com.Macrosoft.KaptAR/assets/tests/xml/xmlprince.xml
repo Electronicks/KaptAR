@@ -1,0 +1,10 @@
+<version value="2">
+	<product cieName="Ubisoft Entertainment" id="1" name="PrinceofPersia">
+		<media relXpos="-0.7" type="image" id="159387" relYpos="0.35694291483113076" scale="0.5">
+			<image url="augmentation/PrinceOfPersia/a_wilson.jpg" width="240" anim="false" filesize="131072" height="240"/>
+		</media>
+		<media relXpos="0.0" type="text" id="1" relYpos="-1">
+            <text lang="eng" url="../kaptarFiles/hasAnyoneEver.txt" filesize="85" encoding="UTF-8"/>
+        </media>
+	</product>
+</version>

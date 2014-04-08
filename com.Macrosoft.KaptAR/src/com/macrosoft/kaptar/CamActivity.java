@@ -12,6 +12,7 @@ import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ public class CamActivity extends AbstractArchitectCamActivity
 	 * extras key for architect-url to load, usually already known upfront, can be relative folder to assets (myWorld.html --> assets/myWorld.html is loaded) or web-url ("http://myserver.com/myWorld.html"). Note that argument passing is only possible via web-url 
 	 */
 	protected static final String EXTRAS_KEY_ACTIVITY_ARCHITECT_WORLD_URL = "activityArchitectWorldUrl";
+	protected static final String EXTRAS_KEY_ACTIVITY_ARCHITECT_WORLD_JS = "activityArchitectWorldJs";
 
 	@Override
 	public void onCreate( Bundle savedInstanceState )
@@ -53,7 +55,9 @@ public class CamActivity extends AbstractArchitectCamActivity
 	public boolean onKeyDown( int keyCode, KeyEvent event )
 	{
 		super.onKeyDown( keyCode, event );
-		if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN))
+		int code = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences( CamActivity.this ).getString( "Bouton partage", "2" ));
+		
+		if ( (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && code == 2) || (keyCode == KeyEvent.KEYCODE_VOLUME_UP && code == 1) )
 		{
 			TakeScreenshot();
 			//Toast.makeText( this, "Screenshot saved to SD/KaptAR Screenshots/" + imagename, Toast.LENGTH_SHORT ).show();
@@ -83,6 +87,8 @@ public class CamActivity extends AbstractArchitectCamActivity
 	protected void onResume()
 	{
 		super.onResume();
+		String world = (String) getIntent().getExtras().getString( EXTRAS_KEY_ACTIVITY_ARCHITECT_WORLD_JS );
+		this.architectView.callJavascript( world );
 	}
 
 	@Override
@@ -194,16 +200,30 @@ public class CamActivity extends AbstractArchitectCamActivity
 						screenCapture.compress( Bitmap.CompressFormat.JPEG, 90, out );
 						out.flush();
 						out.close();
+						
+						if(PreferenceManager.getDefaultSharedPreferences( CamActivity.this ).getBoolean( "Partage d'image", true ))
+						{
+							// 2. create send intent
+							final Intent share = new Intent( Intent.ACTION_SEND );
+							share.setType( "image/jpg" );
+							share.putExtra( Intent.EXTRA_STREAM, Uri.fromFile( screenCaptureFile ) );
+		
+							// 3. launch intent-chooser
+							final String chooserTitle = "Partager l'image";
+							CamActivity.this.startActivity( Intent.createChooser( share, chooserTitle ) );
 	
-						// 2. create send intent
-						final Intent share = new Intent( Intent.ACTION_SEND );
-						share.setType( "image/jpg" );
-						share.putExtra( Intent.EXTRA_STREAM, Uri.fromFile( screenCaptureFile ) );
-	
-						// 3. launch intent-chooser
-						final String chooserTitle = "Partager l'image";
-						CamActivity.this.startActivity( Intent.createChooser( share, chooserTitle ) );
-	
+						}
+						else
+						{
+							CamActivity.this.runOnUiThread( new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									Toast.makeText( CamActivity.this, "Capture sauvegardé!", Toast.LENGTH_SHORT ).show();
+								}
+							} );
+						}
 					}
 					catch( final Exception e )
 					{
