@@ -52,7 +52,7 @@
             android:key="Bouton partage"
             android:title="Bouton partage d'écran"
             android:summary="Définition du bouton de partage"
-            android:defaultValue="1000" 
+            android:defaultValue="1" 
             android:entries="@array/updateInterval"
             android:entryValues="@array/updateIntervalValues"
         />    
