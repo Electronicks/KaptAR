@@ -1,0 +1,35 @@
+<version value="2">
+    <product cieName="Ubisoft Entertainment" id="11" name="PrinceofPersia">
+        <media relXpos="-0.7" type="image" id="159387" relYpos="0" scale="0.5">
+            <image url="../kaptarFiles/ubisoft-mtl.png" width="150" filesize="10660" height="136"/>
+        </media>
+        <media relXpos="0.0" type="video" id="748506" relYpos="-1">
+            <video lang="eng" url="../kaptarFiles/Gameplay_Trailer.mp4" filesize="5059341" encoding="UTF-8"/>
+        </media>
+        <media relXpos="0.7" type="text" id="459782" relYpos="0" scale="0.5">
+            <text lang="eng" url="../kaptarFiles/pop-price.txt" filesize="6"/>
+        </media>
+    </product>
+    <product cieName="Kellogg's" id="12" name="CerealesJustRight">
+        <media relXpos="0" type="image" id="159623" relYpos="1" scale="0.5">
+            <image url="../kaptarFiles/award.jpg" width="95" filesize="3187" height="147"/>
+        </media>
+        <media relXpos="0.0" type="text" id="475630" relYpos="-1">
+            <text lang="eng" url="../kaptarFiles/justright-price.txt" filesize="6" encoding="UTF-8"/>
+        </media>
+        <media relXpos="0.7" type="image" id="012589" relYpos="0" scale="0.8">
+            <image url="../kaptarFiles/jr_nutriment.jpg" width="859"  filesize="309074" height="1932"/>
+        </media>
+    </product>
+    <product cieName="Coup de pouce Express" id="13" name="cdp-meilleursrecettes">
+        <media relXpos="-0.6" type="image" id="513789" relYpos="0" scale="0.5">
+            <image url="../kaptarFiles/pizza-tropicale.jpg" width="142" filesize="26880" height="218"/>
+        </media>
+        <media relXpos="0.0" type="text" id="516723" relYpos="0.7">
+            <text lang="eng" url="../kaptarFiles/cdpexpress-price.txt" filesize="7" encoding="UTF-8"/>
+        </media>
+        <media relXpos="0.6" type="image" id="462014" relYpos="0" scale="0.8">
+            <image url="../kaptarFiles/pizza-recette.jpg" width="324" filesize="34116" height="215"/>
+        </media>
+    </product>
+</version>

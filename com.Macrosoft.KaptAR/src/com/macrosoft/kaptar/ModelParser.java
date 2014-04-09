@@ -1,6 +1,5 @@
 package com.macrosoft.kaptar;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,7 +14,6 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
-import android.util.Base64;
 import android.util.Log;
 import android.util.Xml;
 
@@ -174,7 +172,7 @@ public class ModelParser
 		if( tag.equals( "video" ) )
 		{
 			String attribute = parserAtVideoTag.getAttributeValue( null, "url" ); 
-			url = attribute != null ? attribute : "";
+			url = attribute != null ? attribute.substring( 3, attribute.length()) : "";
 		}
 		parserAtVideoTag.next();
 		parserAtVideoTag.require( XmlPullParser.END_TAG, ns, "video" );
@@ -195,7 +193,7 @@ public class ModelParser
 		if( tag.equals( "audio" ) )
 		{
 			String attribute = parserAtAudioTag.getAttributeValue( null, "url" ); 
-			url = attribute != null ? attribute : "";
+			url = attribute != null ? attribute.substring( 3, attribute.length()) : "";
 		}
 		parserAtAudioTag.next();
 		parserAtAudioTag.require( XmlPullParser.END_TAG, ns, "audio" );
@@ -216,7 +214,7 @@ public class ModelParser
 		if( tag.equals( "image" ) )
 		{
 			String attribute = parserAtImageTag.getAttributeValue( null, "url" ); 
-			url = attribute != null ? attribute : "";
+			url = attribute != null ? attribute.substring( 3, attribute.length()) : "";
 		}
 		parserAtImageTag.next();
 		parserAtImageTag.require( XmlPullParser.END_TAG, ns, "image" );
@@ -225,6 +223,28 @@ public class ModelParser
 		
 		world += generateImageOverlay( overlayname, url, media.getId(), media.getPosX(), media.getPosY() );
 
+		return overlayname;
+	}
+
+	// For the tags title and summary, extracts their text values.
+	private String readText( AugmentationMedia media, XmlPullParser parserAtLinkTag ) throws IOException, XmlPullParserException
+	{
+		String url = null;
+		parserAtLinkTag.require( XmlPullParser.START_TAG, ns, "text" );
+		String tag = parserAtLinkTag.getName();
+		if( tag.equals( "text" ) )
+		{
+			String attribute = parserAtLinkTag.getAttributeValue( null, "url" ); 
+			url = attribute != null ? attribute.substring( 3, attribute.length() ) : "";
+		}
+		parserAtLinkTag.next();
+		parserAtLinkTag.require( XmlPullParser.END_TAG, ns, "text" );
+		
+		String overlayname = url.substring( url.lastIndexOf( '/' )+1, url.lastIndexOf( '.' )).replace( " ", "" ).replace("-","_");
+		
+		String text = downloadText(url, true);
+		
+		world += generateTextOverlay(overlayname, text, media.getPosX(), media.getPosY());
 		return overlayname;
 	}
 	
@@ -244,31 +264,41 @@ public class ModelParser
 		return "";
 	}
 
-	// For the tags title and summary, extracts their text values.
-	private String readText( AugmentationMedia media, XmlPullParser parserAtLinkTag ) throws IOException, XmlPullParserException
+	private String downloadText( String string, boolean b ) throws ClientProtocolException, IOException
 	{
-		String url = null;
-		parserAtLinkTag.require( XmlPullParser.START_TAG, ns, "text" );
-		String tag = parserAtLinkTag.getName();
-		if( tag.equals( "text" ) )
+		String retval = "";
+		if(b==false)
 		{
-			String attribute = parserAtLinkTag.getAttributeValue( null, "url" ); 
-			url = attribute != null ? attribute.substring( 2, attribute.length() ) : "";
+			retval = downloadText( string );
 		}
-		parserAtLinkTag.next();
-		parserAtLinkTag.require( XmlPullParser.END_TAG, ns, "text" );
-		
-		String overlayname = url.substring( url.lastIndexOf( '/' )+1, url.lastIndexOf( '.' )).replace( " ", "" ).replace("-","_");
-		
-		String text = DownloadTexte("http://olivierdiotte.servebeer.com:83"+url);
-		
-		world += generateTextOverlay(overlayname, text, media.getPosX(), media.getPosY());
-		return overlayname;
+		else
+		{
+			InputStream fis = null;
+			try
+			{
+				fis = c.getAssets().open( string );
+				for(int ibyte = fis.read() ; ibyte != -1 ; ibyte = fis.read())
+				{
+					retval += (char) ibyte;
+				}
+			}
+			catch( IOException e )
+			{
+				e.printStackTrace();
+				retval = null;
+			}
+			finally
+			{
+				if(fis!=null) fis.close();
+			}
+		}
+		return retval;
 	}
 
-	private String DownloadTexte( String url ) throws ClientProtocolException, IOException
+	private String downloadText( String url ) throws ClientProtocolException, IOException
 	{
-		HttpUriRequest request = new HttpGet(url);  
+		//TODO: change server to dynamic from prefs
+		HttpUriRequest request = new HttpGet("http://olivierdiotte.servebeer.com:83"+url);  
 		HttpClient httpclient = new DefaultHttpClient();  
 		
 		HttpEntity entity = httpclient.execute(request).getEntity();  
@@ -318,7 +348,8 @@ public class ModelParser
 	
 	private String generateOverlaysAssignment( AugmentedProduct product )
 	{
-		String s = "\t\tvar "+product.getTrackername()+" = new AR.Trackable2DObject(this.tracker, \""+product.getTrackername()+"\", {\n"+
+		String varname = product.getTrackername().replace( " ", "" ).replace("-","_");
+		String s = "\t\tvar "+ varname +" = new AR.Trackable2DObject(this.tracker, \""+product.getTrackername()+"\", {\n"+
 	            "\t\t\tdrawables: {\n"+
                 "\t\t\t\tcam: [";
 		for(int i = 0 ; i < product.overlayNames.size() ; i++)

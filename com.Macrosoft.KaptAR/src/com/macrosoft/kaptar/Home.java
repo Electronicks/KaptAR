@@ -1,6 +1,8 @@
 package com.macrosoft.kaptar;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -11,8 +13,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -79,9 +79,17 @@ public class Home extends Activity implements OnClickListener, WorldReadyEventIF
 		super.onStart();
 		if(arWorld.isEmpty())
 		{
-			btnScanNow.setEnabled( false );
-			worldbuilder = new NetworkWorker(this, this);
-			worldbuilder.execute(getUrlToWorld());
+			try
+			{
+				btnScanNow.setEnabled( false );
+				worldbuilder = new NetworkWorker(this, this);
+				worldbuilder.setTestingXmlSource( getAssets().open( "tests/xml/world.xml" ) );
+				worldbuilder.execute(getUrlToWorld());
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -99,8 +107,8 @@ public class Home extends Activity implements OnClickListener, WorldReadyEventIF
 		if( arg0 == btnScanNow )
 		{
 			//Toast.makeText( this, CamActivity.class.getSimpleName() , Toast.LENGTH_SHORT ).show();
-			//launchArWorld();
-			launchUrlWorld( PreferenceManager.getDefaultSharedPreferences( this ).getString( "URL AR", "default :(" ) );
+			launchArWorld();
+			//launchUrlWorld( PreferenceManager.getDefaultSharedPreferences( this ).getString( "URL AR", "default :(" ) );
 		}
 		else if( arg0 == btnConfiguration )
 		{
@@ -133,7 +141,7 @@ public class Home extends Activity implements OnClickListener, WorldReadyEventIF
 		{
 			final Intent intent = new Intent(this, CamActivity.class);
 			intent.putExtra( CamActivity.EXTRAS_KEY_ACTIVITY_TITLE_STRING, "Monde augmenté de KaptAR" );
-			intent.putExtra( CamActivity.EXTRAS_KEY_ACTIVITY_ARCHITECT_WORLD_URL, "KaptarWorld/index.html" );
+			intent.putExtra( CamActivity.EXTRAS_KEY_ACTIVITY_ARCHITECT_WORLD_URL, "index.html" );
 			intent.putExtra( CamActivity.EXTRAS_KEY_ACTIVITY_ARCHITECT_WORLD_JS, arWorld );
 			startActivity( intent );
 		}
@@ -170,8 +178,32 @@ public class Home extends Activity implements OnClickListener, WorldReadyEventIF
 	@Override
 	public void OnWorldReady( String world )
 	{
-		this.arWorld = world;
-		btnScanNow.setEnabled( true );
+		FileOutputStream fos = null;
+		try
+		{
+			this.arWorld = world;
+			btnScanNow.setEnabled( true );
+			File file = new File(getExternalFilesDir( null ).getCanonicalPath() + "KaptarWorldDescription.js");
+			if(file.exists()) file.delete();
+			fos = new FileOutputStream( file );
+			fos.write( arWorld.getBytes() );
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if(fos != null) fos.close();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return;
 	}
 
 	@Override

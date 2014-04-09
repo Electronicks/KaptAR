@@ -1,1 +1,0 @@
-__SDK={checkVersion:function checkVersionFn(a){return __SDK.checkMinSDKVersion(a.minSDKVersion)},checkMinSDKVersion:function checkMinSDKVersionFn(b){var a=AR.__architectBuildVersion__>=21?true:false;return a}};
